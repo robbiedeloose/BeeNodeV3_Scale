@@ -20,41 +20,56 @@ HX711 scale4(SCALE_4_DATA, SCALE_4_CLOCK);	// DT, SCK	// parameter "gain" is omm
 HX711 scale5(SCALE_5_DATA, SCALE_5_CLOCK);	// DT, SCK	// parameter "gain" is ommited; the default value 128 is used by the library
 HX711 scale6(SCALE_6_DATA, SCALE_6_CLOCK);	// DT, SCK	// parameter "gain" is ommited; the default value 128 is used by the library
 
-//HX711 scale2(4, 5);
+#include <Wire.h>
 
 double readings[6];
 #define numberOfScales 3
 
+
+
 void setup() {
   Serial.begin(9600);
+  delay(5000);
+  Serial.println("readings");
+  pinMode(13, OUTPUT); 
 
-  readings[0] = scale1.get_value(20);
-  readings[1] = scale2.get_value(20);
-  readings[2] = scale3.get_value(20);
+  Serial.println(scale1.get_value(20));
+  Serial.println(scale2.get_value(20));
+  Serial.println(scale3.get_value(20));
 
-  for (int i = 0; i<numberOfScales;i++)
-  {
-    Serial.print(readings[i],0);
-    Serial.print(",");
+  for(int i = 0;i<5;i++){
+    digitalWrite(13, HIGH);
+    delay(50);
+    digitalWrite(13, LOW);
+    delay(50);
   }
-  Serial.println("#");
-  delay(10000);
+  
+  char buf[40];
+  String results = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale2.get_value(20),0) + ">" ;
+  results.toCharArray(buf, 39);
+
+  Serial.println(results);
+  Serial.println(buf);
+  
+  Wire.begin(8);                // join i2c bus with address #8
+  Wire.onRequest(requestEvent); // register event
+
 }
 
 void loop() {
+  delay(100);
+}
 
-  readings[0] = scale1.get_value(20);
-  readings[1] = scale2.get_value(20);
-  readings[2] = scale3.get_value(20);
-
-  for (int i = 0; i<numberOfScales;i++)
-  {
-    Serial.print("Scale ");
-    Serial.print(i + 1);
-    Serial.print(": ");
-    Serial.println(readings[i],0);
+void requestEvent() {  
+  char buf[51];
+  String results = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale2.get_value(20),0) + ">" ;
+  results.toCharArray(buf, 51);
+  for(int i = 0;i<5;i++){
+    digitalWrite(13, HIGH);
+    delay(50);
+    digitalWrite(13, LOW);
+    delay(50);
   }
-  Serial.println();
-  delay(1000);
-
+  Wire.write(buf); // respond with message of 6 bytes
+  // as expected by master
 }
