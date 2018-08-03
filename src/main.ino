@@ -1,3 +1,10 @@
+/*
+BeeLogV3 scale module
+seperat arduino module that reads 6 HX711 scale modules.
+You can request the scale data over i2C
+will return 2 sets of data in <xxxxxxx,xxxxxxx,xxxxxxx> format. This is done because of the buffer limitaion on avr chip
+*/
+
 #include "arduino.h"
 #include "HX711.h"
 
@@ -25,15 +32,16 @@ HX711 scale6(SCALE_6_DATA, SCALE_6_CLOCK);	// DT, SCK	// parameter "gain" is omm
 #include <Wire.h>
 
 double readings[6];
-#define numberOfScales 3
+#define numberOfScales 6
 #define bufferSize 26
 char buf1[bufferSize];
+char buf2[bufferSize];
 
 uint8_t requestCounter = 1;
 
 void setup() {
   Serial.begin(9600);
-  delay(5000);
+  delay(250);
   Serial.println("readings");
   pinMode(13, OUTPUT);
 
@@ -41,14 +49,27 @@ void setup() {
   Serial.println(scale2.get_value(20));
   Serial.println(scale3.get_value(20));
 
-  String results = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale2.get_value(20),0) + ">" ;
+  String results1 = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale2.get_value(20),0) + ">" ;
   Serial.print("String (");
-  Serial.print(results.length());
+  Serial.print(results1.length());
   Serial.print(") : ");
-  Serial.println(results);
+  Serial.println(results1);
 
-  results.toCharArray(buf1, bufferSize);
-  Serial.print("Buf: ");
+  String results2 = String("<") + String(scale4.get_value(20),0) + "," + String(scale5.get_value(20),0) + "," + String(scale6.get_value(20),0) + ">" ;
+  Serial.print("String (");
+  Serial.print(results2.length());
+  Serial.print(") : ");
+  Serial.println(results2);
+
+  results1.toCharArray(buf1, bufferSize);
+  Serial.print("Buf1: ");
+  for(int i=0;i<bufferSize;i++){
+    Serial.print(buf1[i]);
+  }
+  Serial.println();
+
+  results2.toCharArray(buf2, bufferSize);
+  Serial.print("Buf2: ");
   for(int i=0;i<bufferSize;i++){
     Serial.print(buf1[i]);
   }
@@ -60,11 +81,9 @@ void setup() {
     digitalWrite(13, LOW);
     delay(50);
   }
-  Wire.begin(8);                // join i2c bus with address #8
+  Wire.begin(1);                // join i2c bus with address #8
   Wire.onRequest(requestEvent); // register event
-
 }
-
 
 void loop() {
   delay(100);
@@ -74,21 +93,21 @@ void requestEvent() {
   switch (requestCounter) {
     case 1:
       Serial.println("request 1 recieved");
-      Wire.write(buf1); // respond with message of 6 bytes
+      Wire.write(buf1);
       ++requestCounter;
       break;
     case 2:
       Serial.println("request 2 recieved");
-      Wire.write(buf1); // respond with message of 6 bytes
-      ++requestCounter;
-      break;
-    case 3:
-      Serial.println("request 3 recieved");
-      Wire.write(buf1); // respond with message of 6 bytes
+      Wire.write(buf2);
       ++requestCounter;
       break;
   }
   if (requestCounter > 2)
     requestCounter = 1;
-  // as expected by master
+    for(int i = 0;i<2;i++){
+      digitalWrite(13, HIGH);
+      delay(100);
+      digitalWrite(13, LOW);
+      delay(50);
+    }
 }
