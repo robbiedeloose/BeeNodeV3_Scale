@@ -1,4 +1,6 @@
+#include "arduino.h"
 #include "HX711.h"
+
 
 #define SCALE_1_DATA 2 // blauw
 #define SCALE_1_CLOCK 3 // geel
@@ -24,52 +26,69 @@ HX711 scale6(SCALE_6_DATA, SCALE_6_CLOCK);	// DT, SCK	// parameter "gain" is omm
 
 double readings[6];
 #define numberOfScales 3
+#define bufferSize 26
+char buf1[bufferSize];
 
-
+uint8_t requestCounter = 1;
 
 void setup() {
   Serial.begin(9600);
   delay(5000);
   Serial.println("readings");
-  pinMode(13, OUTPUT); 
+  pinMode(13, OUTPUT);
 
   Serial.println(scale1.get_value(20));
   Serial.println(scale2.get_value(20));
   Serial.println(scale3.get_value(20));
 
+  String results = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale2.get_value(20),0) + ">" ;
+  Serial.print("String (");
+  Serial.print(results.length());
+  Serial.print(") : ");
+  Serial.println(results);
+
+  results.toCharArray(buf1, bufferSize);
+  Serial.print("Buf: ");
+  for(int i=0;i<bufferSize;i++){
+    Serial.print(buf1[i]);
+  }
+  Serial.println();
+
   for(int i = 0;i<5;i++){
     digitalWrite(13, HIGH);
     delay(50);
     digitalWrite(13, LOW);
     delay(50);
   }
-  
-  char buf[40];
-  String results = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale2.get_value(20),0) + ">" ;
-  results.toCharArray(buf, 39);
-
-  Serial.println(results);
-  Serial.println(buf);
-  
   Wire.begin(8);                // join i2c bus with address #8
   Wire.onRequest(requestEvent); // register event
 
 }
 
+
 void loop() {
   delay(100);
 }
 
-void requestEvent() {  
-  char buf[51];
-  String results = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale2.get_value(20),0) + ">" ;
-  results.toCharArray(buf, 51);
-  for(int i = 0;i<5;i++){
-    digitalWrite(13, HIGH);
-    delay(50);
-    digitalWrite(13, LOW);
-    delay(50);
+void requestEvent() {
+  switch (requestCounter) {
+    case 1:
+      Serial.println("request 1 recieved");
+      Wire.write(buf1); // respond with message of 6 bytes
+      ++requestCounter;
+      break;
+    case 2:
+      Serial.println("request 2 recieved");
+      Wire.write(buf1); // respond with message of 6 bytes
+      ++requestCounter;
+      break;
+    case 3:
+      Serial.println("request 3 recieved");
+      Wire.write(buf1); // respond with message of 6 bytes
+      ++requestCounter;
+      break;
   }
-  Wire.write(buf); // respond with message of 6 bytes
+  if (requestCounter > 2)
+    requestCounter = 1;
   // as expected by master
 }
