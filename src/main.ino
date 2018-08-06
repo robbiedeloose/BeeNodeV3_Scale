@@ -9,12 +9,12 @@ will return 2 sets of data in <xxxxxxx,xxxxxxx,xxxxxxx> format. This is done bec
 #include "HX711.h"
 
 
-#define SCALE_1_DATA 2 // blauw
-#define SCALE_1_CLOCK 3 // geel
-#define SCALE_2_DATA 4 // blauw
-#define SCALE_2_CLOCK 5 // geel
-#define SCALE_3_DATA 6 // blauw
-#define SCALE_3_CLOCK 7 // geel
+#define SCALE_1_DATA 3 // blauw
+#define SCALE_1_CLOCK 2 // geel
+#define SCALE_2_DATA 5 // blauw
+#define SCALE_2_CLOCK 4 // geel
+#define SCALE_3_DATA 7 // blauw
+#define SCALE_3_CLOCK 6 // geel
 #define SCALE_4_DATA 8 // blauw
 #define SCALE_4_CLOCK 9 // geel
 #define SCALE_5_DATA 10 // blauw
@@ -48,8 +48,9 @@ void setup() {
   Serial.println(scale1.get_value(20));
   Serial.println(scale2.get_value(20));
   Serial.println(scale3.get_value(20));
+  delay(1000);
 
-  String results1 = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale2.get_value(20),0) + ">" ;
+  String results1 = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale3.get_value(20),0) + ">" ;
   Serial.print("String (");
   Serial.print(results1.length());
   Serial.print(") : ");
@@ -71,7 +72,7 @@ void setup() {
   results2.toCharArray(buf2, bufferSize);
   Serial.print("Buf2: ");
   for(int i=0;i<bufferSize;i++){
-    Serial.print(buf1[i]);
+    Serial.print(buf2[i]);
   }
   Serial.println();
 
