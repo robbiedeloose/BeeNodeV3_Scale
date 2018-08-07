@@ -2,32 +2,44 @@
 BeeLogV3 scale module
 seperat arduino module that reads 6 HX711 scale modules.
 You can request the scale data over i2C
-will return 2 sets of data in <xxxxxxx,xxxxxxx,xxxxxxx> format. This is done because of the buffer limitaion on avr chip
+will return 2 sets of data in <xxxxxxx,xxxxxxx,xxxxxxx> format. This is done
+because of the buffer limitaion on avr chip
 */
 
-#include "arduino.h"
 #include "HX711.h"
+#include "arduino.h"
 
-
-#define SCALE_1_DATA 3 // blauw
-#define SCALE_1_CLOCK 2 // geel
-#define SCALE_2_DATA 5 // blauw
-#define SCALE_2_CLOCK 4 // geel
-#define SCALE_3_DATA 7 // blauw
-#define SCALE_3_CLOCK 6 // geel
-#define SCALE_4_DATA 8 // blauw
-#define SCALE_4_CLOCK 9 // geel
-#define SCALE_5_DATA 10 // blauw
+#define SCALE_1_DATA 3   // blauw
+#define SCALE_1_CLOCK 2  // geel
+#define SCALE_2_DATA 5   // blauw
+#define SCALE_2_CLOCK 4  // geel
+#define SCALE_3_DATA 7   // blauw
+#define SCALE_3_CLOCK 6  // geel
+#define SCALE_4_DATA 8   // blauw
+#define SCALE_4_CLOCK 9  // geel
+#define SCALE_5_DATA 10  // blauw
 #define SCALE_5_CLOCK 11 // geel
-#define SCALE_6_DATA 12 // blauw
+#define SCALE_6_DATA 12  // blauw
 #define SCALE_6_CLOCK 13 // geel
 
-HX711 scale1(SCALE_1_DATA, SCALE_1_CLOCK);	// DT, SCK	// parameter "gain" is ommited; the default value 128 is used by the library
-HX711 scale2(SCALE_2_DATA, SCALE_2_CLOCK);	// DT, SCK	// parameter "gain" is ommited; the default value 128 is used by the library
-HX711 scale3(SCALE_3_DATA, SCALE_3_CLOCK);	// DT, SCK	// parameter "gain" is ommited; the default value 128 is used by the library
-HX711 scale4(SCALE_4_DATA, SCALE_4_CLOCK);	// DT, SCK	// parameter "gain" is ommited; the default value 128 is used by the library
-HX711 scale5(SCALE_5_DATA, SCALE_5_CLOCK);	// DT, SCK	// parameter "gain" is ommited; the default value 128 is used by the library
-HX711 scale6(SCALE_6_DATA, SCALE_6_CLOCK);	// DT, SCK	// parameter "gain" is ommited; the default value 128 is used by the library
+HX711 scale1(SCALE_1_DATA, SCALE_1_CLOCK); // DT, SCK	// parameter "gain" is
+                                           // ommited; the default value 128 is
+                                           // used by the library
+HX711 scale2(SCALE_2_DATA, SCALE_2_CLOCK); // DT, SCK	// parameter "gain" is
+                                           // ommited; the default value 128 is
+                                           // used by the library
+HX711 scale3(SCALE_3_DATA, SCALE_3_CLOCK); // DT, SCK	// parameter "gain" is
+                                           // ommited; the default value 128 is
+                                           // used by the library
+HX711 scale4(SCALE_4_DATA, SCALE_4_CLOCK); // DT, SCK	// parameter "gain" is
+                                           // ommited; the default value 128 is
+                                           // used by the library
+HX711 scale5(SCALE_5_DATA, SCALE_5_CLOCK); // DT, SCK	// parameter "gain" is
+                                           // ommited; the default value 128 is
+                                           // used by the library
+HX711 scale6(SCALE_6_DATA, SCALE_6_CLOCK); // DT, SCK	// parameter "gain" is
+                                           // ommited; the default value 128 is
+                                           // used by the library
 
 #include <Wire.h>
 
@@ -50,13 +62,17 @@ void setup() {
   Serial.println(scale3.get_value(20));
   delay(1000);
 
-  String results1 = String("<") + String(scale1.get_value(20),0) + "," + String(scale2.get_value(20),0) + "," + String(scale3.get_value(20),0) + ">" ;
+  String results1 = String("<") + String(scale1.get_value(20), 0) + "," +
+                    String(scale2.get_value(20), 0) + "," +
+                    String(scale3.get_value(20), 0) + ">";
   Serial.print("String (");
   Serial.print(results1.length());
   Serial.print(") : ");
   Serial.println(results1);
 
-  String results2 = String("<") + String(scale4.get_value(20),0) + "," + String(scale5.get_value(20),0) + "," + String(scale6.get_value(20),0) + ">" ;
+  String results2 = String("<") + String(scale4.get_value(20), 0) + "," +
+                    String(scale5.get_value(20), 0) + "," +
+                    String(scale6.get_value(20), 0) + ">";
   Serial.print("String (");
   Serial.print(results2.length());
   Serial.print(") : ");
@@ -64,19 +80,19 @@ void setup() {
 
   results1.toCharArray(buf1, bufferSize);
   Serial.print("Buf1: ");
-  for(int i=0;i<bufferSize;i++){
+  for (int i = 0; i < bufferSize; i++) {
     Serial.print(buf1[i]);
   }
   Serial.println();
 
   results2.toCharArray(buf2, bufferSize);
   Serial.print("Buf2: ");
-  for(int i=0;i<bufferSize;i++){
+  for (int i = 0; i < bufferSize; i++) {
     Serial.print(buf2[i]);
   }
   Serial.println();
 
-  for(int i = 0;i<5;i++){
+  for (int i = 0; i < 5; i++) {
     digitalWrite(13, HIGH);
     delay(50);
     digitalWrite(13, LOW);
@@ -86,29 +102,27 @@ void setup() {
   Wire.onRequest(requestEvent); // register event
 }
 
-void loop() {
-  delay(100);
-}
+void loop() { delay(100); }
 
 void requestEvent() {
   switch (requestCounter) {
-    case 1:
-      Serial.println("request 1 recieved");
-      Wire.write(buf1);
-      ++requestCounter;
-      break;
-    case 2:
-      Serial.println("request 2 recieved");
-      Wire.write(buf2);
-      ++requestCounter;
-      break;
+  case 1:
+    Serial.println("request 1 recieved");
+    Wire.write(buf1);
+    ++requestCounter;
+    break;
+  case 2:
+    Serial.println("request 2 recieved");
+    Wire.write(buf2);
+    ++requestCounter;
+    break;
   }
   if (requestCounter > 2)
     requestCounter = 1;
-    for(int i = 0;i<2;i++){
-      digitalWrite(13, HIGH);
-      delay(100);
-      digitalWrite(13, LOW);
-      delay(50);
-    }
+  for (int i = 0; i < 2; i++) {
+    digitalWrite(13, HIGH);
+    delay(100);
+    digitalWrite(13, LOW);
+    delay(50);
+  }
 }
