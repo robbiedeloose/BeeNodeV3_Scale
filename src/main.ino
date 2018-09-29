@@ -22,30 +22,19 @@ because of the buffer limitaion on avr chip
 #define SCALE_6_DATA 12  // blauw
 #define SCALE_6_CLOCK 13 // geel
 
-HX711 scale1(SCALE_1_DATA, SCALE_1_CLOCK); // DT, SCK	// parameter "gain" is
-                                           // ommited; the default value 128 is
-                                           // used by the library
-HX711 scale2(SCALE_2_DATA, SCALE_2_CLOCK); // DT, SCK	// parameter "gain" is
-                                           // ommited; the default value 128 is
-                                           // used by the library
-HX711 scale3(SCALE_3_DATA, SCALE_3_CLOCK); // DT, SCK	// parameter "gain" is
-                                           // ommited; the default value 128 is
-                                           // used by the library
-HX711 scale4(SCALE_4_DATA, SCALE_4_CLOCK); // DT, SCK	// parameter "gain" is
-                                           // ommited; the default value 128 is
-                                           // used by the library
-HX711 scale5(SCALE_5_DATA, SCALE_5_CLOCK); // DT, SCK	// parameter "gain" is
-                                           // ommited; the default value 128 is
-                                           // used by the library
-HX711 scale6(SCALE_6_DATA, SCALE_6_CLOCK); // DT, SCK	// parameter "gain" is
-                                           // ommited; the default value 128 is
-                                           // used by the library
+// DT, SCK	// parameter "gain" is ommited; the default value 128 is used by the library
+HX711 scale1(SCALE_1_DATA, SCALE_1_CLOCK); 
+HX711 scale2(SCALE_2_DATA, SCALE_2_CLOCK); 
+HX711 scale3(SCALE_3_DATA, SCALE_3_CLOCK);
+HX711 scale4(SCALE_4_DATA, SCALE_4_CLOCK); 
+HX711 scale5(SCALE_5_DATA, SCALE_5_CLOCK); 
+HX711 scale6(SCALE_6_DATA, SCALE_6_CLOCK); 
 
 #include <Wire.h>
 
 double readings[6];
 #define numberOfScales 6
-#define bufferSize 26
+#define bufferSize 24
 char buf1[bufferSize];
 char buf2[bufferSize];
 
@@ -62,35 +51,38 @@ void setup() {
   Serial.println(scale3.get_value(20));
   delay(1000);
 
-  String results1 = String("<") + String(scale1.get_value(20), 0) + "," +
+  String results1 = String(scale1.get_value(20), 0) + "," +
                     String(scale2.get_value(20), 0) + "," +
-                    String(scale3.get_value(20), 0) + ">";
+                    String(scale3.get_value(20), 0);
   Serial.print("String (");
   Serial.print(results1.length());
   Serial.print(") : ");
   Serial.println(results1);
 
-  String results2 = String("<") + String(scale4.get_value(20), 0) + "," +
+  String results2 = String(scale4.get_value(20), 0) + "," +
                     String(scale5.get_value(20), 0) + "," +
-                    String(scale6.get_value(20), 0) + ">";
+                    String(scale6.get_value(20), 0);
   Serial.print("String (");
   Serial.print(results2.length());
   Serial.print(") : ");
   Serial.println(results2);
 
-  results1.toCharArray(buf1, bufferSize);
+  results1.toCharArray(buf1, results1.length()+1);
   Serial.print("Buf1: ");
   for (int i = 0; i < bufferSize; i++) {
     Serial.print(buf1[i]);
   }
   Serial.println();
 
-  results2.toCharArray(buf2, bufferSize);
+  results2.toCharArray(buf2, results2.length()+1);
   Serial.print("Buf2: ");
   for (int i = 0; i < bufferSize; i++) {
     Serial.print(buf2[i]);
   }
   Serial.println();
+
+  Serial.println(buf1);
+  Serial.println(buf2);
 
   for (int i = 0; i < 5; i++) {
     digitalWrite(13, HIGH);
